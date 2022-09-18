@@ -718,8 +718,8 @@ void setup() {
   digitalWrite(20, LOW);
 
   // verstärker an
-  pinMode(8, OUTPUT);
-  digitalWrite(8, LOW);
+  pinMode(19, OUTPUT);
+  digitalWrite(19, LOW);
 
   Serial.begin(115200); // Es gibt ein paar Debug Ausgaben über die serielle Schnittstelle
 
