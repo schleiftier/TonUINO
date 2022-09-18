@@ -22,7 +22,6 @@
 static const uint32_t cardCookie = 322417479;
 
 // DFPlayer Mini
-SoftwareSerial mySoftwareSerial(2, 3); // RX, TX
 uint16_t numTracksInFolder;
 uint16_t currentTrack;
 uint16_t firstTrack;
@@ -79,12 +78,17 @@ void dump_byte_array(byte * buffer, byte bufferSize);
 void adminMenu(bool fromCard = false);
 bool knownCard = false;
 
+class Mp3Notify; 
+
+typedef DFMiniMp3<HardwareSerial, Mp3Notify> DfMp3;
+DfMp3 mp3(Serial2);
+
 // implement a notification class,
 // its member methods will get called
 //
 class Mp3Notify {
   public:
-    static void OnError(uint16_t errorCode) {
+    static void OnError([[maybe_unused]] DfMp3& mp3, uint16_t errorCode) {
       // see DfMp3_Error for code meaning
       Serial.println();
       Serial.print("Com Error ");
@@ -96,24 +100,24 @@ class Mp3Notify {
       if (source & DfMp3_PlaySources_Flash) Serial.print("Flash ");
       Serial.println(action);
     }
-    static void OnPlayFinished(DfMp3_PlaySources source, uint16_t track) {
+    static void OnPlayFinished([[maybe_unused]] DfMp3& mp3, [[maybe_unused]] DfMp3_PlaySources source, uint16_t track) {
       //      Serial.print("Track beendet");
       //      Serial.println(track);
       //      delay(100);
       nextTrack(track);
     }
-    static void OnPlaySourceOnline(DfMp3_PlaySources source) {
-      PrintlnSourceAction(source, "online");
-    }
-    static void OnPlaySourceInserted(DfMp3_PlaySources source) {
+  static void OnPlaySourceOnline([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
+  {
+    PrintlnSourceAction(source, "online");
+  }
+    static void OnPlaySourceInserted([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source) {
       PrintlnSourceAction(source, "bereit");
     }
-    static void OnPlaySourceRemoved(DfMp3_PlaySources source) {
+    static void OnPlaySourceRemoved([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source) {
       PrintlnSourceAction(source, "entfernt");
     }
 };
 
-static DFMiniMp3<SoftwareSerial, Mp3Notify> mp3(mySoftwareSerial);
 
 void shuffleQueue() {
   // Queue für die Zufallswiedergabe erstellen
@@ -624,8 +628,8 @@ static void previousTrack() {
 }
 
 // MFRC522
-#define RST_PIN 9                 // Configurable, see typical pin layout above
-#define SS_PIN 10                 // Configurable, see typical pin layout above
+#define RST_PIN 11                 // Configurable, see typical pin layout above
+#define SS_PIN 7                 // Configurable, see typical pin layout above
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522
 MFRC522::MIFARE_Key key;
 bool successRead;
@@ -638,7 +642,7 @@ MFRC522::StatusCode status;
 #define buttonUp A2
 #define buttonDown A1
 #define busyPin 4
-#define shutdownPin 7
+#define shutdownPin 27
 #define openAnalogPin A7
 
 #ifdef FIVEBUTTONS
@@ -710,8 +714,8 @@ void setup() {
   digitalWrite(shutdownPin, HIGH);
 
   // sd karten zugang aus
-  pinMode(A5, OUTPUT);
-  digitalWrite(A5, LOW);
+  pinMode(20, OUTPUT);
+  digitalWrite(20, LOW);
 
   // verstärker an
   pinMode(8, OUTPUT);
