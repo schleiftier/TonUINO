@@ -8,7 +8,7 @@
    _____         _____ _____ _____ _____
   |_   _|___ ___|  |  |     |   | |     |
     | | | . |   |  |  |-   -| | | |  |  |
-    |_| |___|_|_|_____|_____|_|___|_____| All-in-One
+    |_| |___|_|_|_____|_____|_|___|_____| All-in-One Plus
     TonUINO Version 2.2
 
     created by Thorsten Voß and licensed under GNU/GPL.
@@ -133,20 +133,20 @@ void shuffleQueue() {
     queue[i] = queue[j];
     queue[j] = t;
   }
-  /*  Serial.println(F("Queue :"));
+  /*  Serial.println("Queue :"));
     for (uint8_t x = 0; x < numTracksInFolder - firstTrack + 1 ; x++)
       Serial.println(queue[x]);
   */
 }
 
 void writeSettingsToFlash() {
-  Serial.println(F("=== writeSettingsToFlash()"));
+  Serial.println("=== writeSettingsToFlash()");
   int address = sizeof(myFolder->folder) * 100;
-  EEPROM_put(address, mySettings);
+  EEPROM.put(address, mySettings);
 }
 
 void resetSettings() {
-  Serial.println(F("=== resetSettings()"));
+  Serial.println("=== resetSettings()");
   mySettings.cookie = cardCookie;
   mySettings.version = 2;
   mySettings.maxVolume = 25;
@@ -171,8 +171,8 @@ void resetSettings() {
 
 void migrateSettings(int oldVersion) {
   if (oldVersion == 1) {
-    Serial.println(F("=== resetSettings()"));
-    Serial.println(F("1 -> 2"));
+    Serial.println("=== resetSettings()");
+    Serial.println("1 -> 2");
     mySettings.version = 2;
     mySettings.adminMenuLocked = 0;
     mySettings.adminMenuPin[0] = 1;
@@ -184,41 +184,41 @@ void migrateSettings(int oldVersion) {
 }
 
 void loadSettingsFromFlash() {
-  Serial.println(F("=== loadSettingsFromFlash()"));
+  Serial.println("=== loadSettingsFromFlash()");
   int address = sizeof(myFolder->folder) * 100;
-  EEPROM_get(address, mySettings);
+  EEPROM.get(address, mySettings);
   if (mySettings.cookie != cardCookie)
     resetSettings();
   migrateSettings(mySettings.version);
 
-  Serial.print(F("Version: "));
+  Serial.print("Version: ");
   Serial.println(mySettings.version);
 
-  Serial.print(F("Maximal Volume: "));
+  Serial.print("Maximal Volume: ");
   Serial.println(mySettings.maxVolume);
 
-  Serial.print(F("Minimal Volume: "));
+  Serial.print("Minimal Volume: ");
   Serial.println(mySettings.minVolume);
 
-  Serial.print(F("Initial Volume: "));
+  Serial.print("Initial Volume: ");
   Serial.println(mySettings.initVolume);
 
-  Serial.print(F("EQ: "));
+  Serial.print("EQ: ");
   Serial.println(mySettings.eq);
 
-  Serial.print(F("Locked: "));
+  Serial.print("Locked: ");
   Serial.println(mySettings.locked);
 
-  Serial.print(F("Sleep Timer: "));
+  Serial.print("Sleep Timer: ");
   Serial.println(mySettings.standbyTimer);
 
-  Serial.print(F("Inverted Volume Buttons: "));
+  Serial.print("Inverted Volume Buttons: ");
   Serial.println(mySettings.invertVolumeButtons);
 
-  Serial.print(F("Admin Menu locked: "));
+  Serial.print("Admin Menu locked: ");
   Serial.println(mySettings.adminMenuLocked);
 
-  Serial.print(F("Admin Menu Pin: "));
+  Serial.print("Admin Menu Pin: ");
   Serial.print(mySettings.adminMenuPin[0]);
   Serial.print(mySettings.adminMenuPin[1]);
   Serial.print(mySettings.adminMenuPin[2]);
@@ -269,7 +269,7 @@ class SleepTimer: public Modifier {
   public:
     void loop() {
       if (this->sleepAtMillis != 0 && millis() > this->sleepAtMillis) {
-        Serial.println(F("=== SleepTimer::loop() -> SLEEP!"));
+        Serial.println("=== SleepTimer::loop() -> SLEEP!");
         mp3.pause();
         setstandbyTimer();
         activeModifier = NULL;
@@ -278,7 +278,7 @@ class SleepTimer: public Modifier {
     }
 
     SleepTimer(uint8_t minutes) {
-      Serial.println(F("=== SleepTimer()"));
+      Serial.println("=== SleepTimer()");
       Serial.println(minutes);
       this->sleepAtMillis = millis() + minutes * 60000;
       //      if (isPlaying())
@@ -286,7 +286,7 @@ class SleepTimer: public Modifier {
       //      delay(500);
     }
     uint8_t getActive() {
-      Serial.println(F("== SleepTimer::getActive()"));
+      Serial.println("== SleepTimer::getActive()");
       return 1;
     }
 };
@@ -299,7 +299,7 @@ class FreezeDance: public Modifier {
 
     void setNextStopAtMillis() {
       uint16_t seconds = random(this->minSecondsBetweenStops, this->maxSecondsBetweenStops + 1);
-      Serial.println(F("=== FreezeDance::setNextStopAtMillis()"));
+      Serial.println("=== FreezeDance::setNextStopAtMillis()");
       Serial.println(seconds);
       this->nextStopAtMillis = millis() + seconds * 1000;
     }
@@ -307,7 +307,7 @@ class FreezeDance: public Modifier {
   public:
     void loop() {
       if (this->nextStopAtMillis != 0 && millis() > this->nextStopAtMillis) {
-        Serial.println(F("== FreezeDance::loop() -> FREEZE!"));
+        Serial.println("== FreezeDance::loop() -> FREEZE!");
         if (isPlaying()) {
           mp3.playAdvertisement(301);
           delay(500);
@@ -316,7 +316,7 @@ class FreezeDance: public Modifier {
       }
     }
     FreezeDance(void) {
-      Serial.println(F("=== FreezeDance()"));
+      Serial.println("=== FreezeDance()");
       if (isPlaying()) {
         delay(1000);
         mp3.playAdvertisement(300);
@@ -325,7 +325,7 @@ class FreezeDance: public Modifier {
       setNextStopAtMillis();
     }
     uint8_t getActive() {
-      Serial.println(F("== FreezeDance::getActive()"));
+      Serial.println("== FreezeDance::getActive()");
       return 2;
     }
 };
@@ -333,31 +333,31 @@ class FreezeDance: public Modifier {
 class Locked: public Modifier {
   public:
     virtual bool handlePause()     {
-      Serial.println(F("== Locked::handlePause() -> LOCKED!"));
+      Serial.println("== Locked::handlePause() -> LOCKED!");
       return true;
     }
     virtual bool handleNextButton()       {
-      Serial.println(F("== Locked::handleNextButton() -> LOCKED!"));
+      Serial.println("== Locked::handleNextButton() -> LOCKED!");
       return true;
     }
     virtual bool handlePreviousButton() {
-      Serial.println(F("== Locked::handlePreviousButton() -> LOCKED!"));
+      Serial.println("== Locked::handlePreviousButton() -> LOCKED!");
       return true;
     }
     virtual bool handleVolumeUp()   {
-      Serial.println(F("== Locked::handleVolumeUp() -> LOCKED!"));
+      Serial.println("== Locked::handleVolumeUp() -> LOCKED!");
       return true;
     }
     virtual bool handleVolumeDown() {
-      Serial.println(F("== Locked::handleVolumeDown() -> LOCKED!"));
+      Serial.println("== Locked::handleVolumeDown() -> LOCKED!");
       return true;
     }
     virtual bool handleRFID(nfcTagObject *newCard) {
-      Serial.println(F("== Locked::handleRFID() -> LOCKED!"));
+      Serial.println("== Locked::handleRFID() -> LOCKED!");
       return true;
     }
     Locked(void) {
-      Serial.println(F("=== Locked()"));
+      Serial.println("=== Locked()");
       //      if (isPlaying())
       //        mp3.playAdvertisement(303);
     }
@@ -369,32 +369,32 @@ class Locked: public Modifier {
 class ToddlerMode: public Modifier {
   public:
     virtual bool handlePause()     {
-      Serial.println(F("== ToddlerMode::handlePause() -> LOCKED!"));
+      Serial.println("== ToddlerMode::handlePause() -> LOCKED!");
       return true;
     }
     virtual bool handleNextButton()       {
-      Serial.println(F("== ToddlerMode::handleNextButton() -> LOCKED!"));
+      Serial.println("== ToddlerMode::handleNextButton() -> LOCKED!");
       return true;
     }
     virtual bool handlePreviousButton() {
-      Serial.println(F("== ToddlerMode::handlePreviousButton() -> LOCKED!"));
+      Serial.println("== ToddlerMode::handlePreviousButton() -> LOCKED!");
       return true;
     }
     virtual bool handleVolumeUp()   {
-      Serial.println(F("== ToddlerMode::handleVolumeUp() -> LOCKED!"));
+      Serial.println("== ToddlerMode::handleVolumeUp() -> LOCKED!");
       return true;
     }
     virtual bool handleVolumeDown() {
-      Serial.println(F("== ToddlerMode::handleVolumeDown() -> LOCKED!"));
+      Serial.println("== ToddlerMode::handleVolumeDown() -> LOCKED!");
       return true;
     }
     ToddlerMode(void) {
-      Serial.println(F("=== ToddlerMode()"));
+      Serial.println("=== ToddlerMode()");
       //      if (isPlaying())
       //        mp3.playAdvertisement(304);
     }
     uint8_t getActive() {
-      Serial.println(F("== ToddlerMode::getActive()"));
+      Serial.println("== ToddlerMode::getActive()");
       return 4;
     }
 };
@@ -406,7 +406,7 @@ class KindergardenMode: public Modifier {
 
   public:
     virtual bool handleNext() {
-      Serial.println(F("== KindergardenMode::handleNext() -> NEXT"));
+      Serial.println("== KindergardenMode::handleNext() -> NEXT");
       //if (this->nextCard.cookie == cardCookie && this->nextCard.nfcFolderSettings.folder != 0 && this->nextCard.nfcFolderSettings.mode != 0) {
       //myFolder = &this->nextCard.nfcFolderSettings;
       if (this->cardQueued == true) {
@@ -422,19 +422,19 @@ class KindergardenMode: public Modifier {
       return false;
     }
     //    virtual bool handlePause()     {
-    //      Serial.println(F("== KindergardenMode::handlePause() -> LOCKED!"));
+    //      Serial.println("== KindergardenMode::handlePause() -> LOCKED!"));
     //      return true;
     //    }
     virtual bool handleNextButton()       {
-      Serial.println(F("== KindergardenMode::handleNextButton() -> LOCKED!"));
+      Serial.println("== KindergardenMode::handleNextButton() -> LOCKED!");
       return true;
     }
     virtual bool handlePreviousButton() {
-      Serial.println(F("== KindergardenMode::handlePreviousButton() -> LOCKED!"));
+      Serial.println("== KindergardenMode::handlePreviousButton() -> LOCKED!");
       return true;
     }
     virtual bool handleRFID(nfcTagObject * newCard) { // lot of work to do!
-      Serial.println(F("== KindergardenMode::handleRFID() -> queued!"));
+      Serial.println("== KindergardenMode::handleRFID() -> queued!");
       this->nextCard = *newCard;
       this->cardQueued = true;
       if (!isPlaying()) {
@@ -443,13 +443,13 @@ class KindergardenMode: public Modifier {
       return true;
     }
     KindergardenMode() {
-      Serial.println(F("=== KindergardenMode()"));
+      Serial.println("=== KindergardenMode()");
       //      if (isPlaying())
       //        mp3.playAdvertisement(305);
       //      delay(500);
     }
     uint8_t getActive() {
-      Serial.println(F("== KindergardenMode::getActive()"));
+      Serial.println("== KindergardenMode::getActive()");
       return 5;
     }
 };
@@ -457,7 +457,7 @@ class KindergardenMode: public Modifier {
 class RepeatSingleModifier: public Modifier {
   public:
     virtual bool handleNext() {
-      Serial.println(F("== RepeatSingleModifier::handleNext() -> REPEAT CURRENT TRACK"));
+      Serial.println("== RepeatSingleModifier::handleNext() -> REPEAT CURRENT TRACK");
       delay(50);
       if (isPlaying()) return true;
       if (myFolder->mode == 3 || myFolder->mode == 9) {
@@ -470,10 +470,10 @@ class RepeatSingleModifier: public Modifier {
       return true;
     }
     RepeatSingleModifier() {
-      Serial.println(F("=== RepeatSingleModifier()"));
+      Serial.println("=== RepeatSingleModifier()");
     }
     uint8_t getActive() {
-      Serial.println(F("== RepeatSingleModifier::getActive()"));
+      Serial.println("== RepeatSingleModifier::getActive()");
       return 6;
     }
 };
@@ -492,7 +492,7 @@ class FeedbackModifier: public Modifier {
         mp3.playAdvertisement(volume);
       }
       delay(500);
-      Serial.println(F("== FeedbackModifier::handleVolumeDown()!"));
+      Serial.println("== FeedbackModifier::handleVolumeDown()!");
       return false;
     }
     virtual bool handleVolumeUp() {
@@ -503,11 +503,11 @@ class FeedbackModifier: public Modifier {
         mp3.playAdvertisement(volume);
       }
       delay(500);
-      Serial.println(F("== FeedbackModifier::handleVolumeUp()!"));
+      Serial.println("== FeedbackModifier::handleVolumeUp()!");
       return false;
     }
     virtual bool handleRFID(nfcTagObject *newCard) {
-      Serial.println(F("== FeedbackModifier::handleRFID()"));
+      Serial.println("== FeedbackModifier::handleRFID()");
       return false;
     }
 };
@@ -530,17 +530,17 @@ static void nextTrack(uint16_t track) {
     // verarbeitet werden
     return;
 
-  Serial.println(F("=== nextTrack()"));
+  Serial.println("=== nextTrack()");
 
   if (myFolder->mode == 1 || myFolder->mode == 7) {
-    Serial.println(F("Hörspielmodus ist aktiv -> keinen neuen Track spielen"));
+    Serial.println("Hörspielmodus ist aktiv -> keinen neuen Track spielen");
     setstandbyTimer();
   }
   if (myFolder->mode == 2 || myFolder->mode == 8) {
     if (currentTrack != numTracksInFolder) {
       currentTrack = currentTrack + 1;
       mp3.playFolderTrack(myFolder->folder, currentTrack);
-      Serial.print(F("Albummodus ist aktiv -> nächster Track: "));
+      Serial.print("Albummodus ist aktiv -> nächster Track: ");
       Serial.print(currentTrack);
     } else
       setstandbyTimer();
@@ -548,13 +548,13 @@ static void nextTrack(uint16_t track) {
   }
   if (myFolder->mode == 3 || myFolder->mode == 9) {
     if (currentTrack != numTracksInFolder - firstTrack + 1) {
-      Serial.print(F("Party -> weiter in der Queue "));
+      Serial.print("Party -> weiter in der Queue ");
       currentTrack++;
     } else {
-      Serial.println(F("Ende der Queue -> beginne von vorne"));
+      Serial.println("Ende der Queue -> beginne von vorne");
       currentTrack = 1;
       //// Wenn am Ende der Queue neu gemischt werden soll bitte die Zeilen wieder aktivieren
-      //     Serial.println(F("Ende der Queue -> mische neu"));
+      //     Serial.println("Ende der Queue -> mische neu"));
       //     shuffleQueue();
     }
     Serial.println(queue[currentTrack - 1]);
@@ -562,21 +562,21 @@ static void nextTrack(uint16_t track) {
   }
 
   if (myFolder->mode == 4) {
-    Serial.println(F("Einzel Modus aktiv -> Strom sparen"));
+    Serial.println("Einzel Modus aktiv -> Strom sparen");
     setstandbyTimer();
   }
   if (myFolder->mode == 5) {
     if (currentTrack != numTracksInFolder) {
       currentTrack = currentTrack + 1;
-      Serial.print(F("Hörbuch Modus ist aktiv -> nächster Track und "
-                     "Fortschritt speichern"));
+      Serial.print("Hörbuch Modus ist aktiv -> nächster Track und "
+                     "Fortschritt speichern");
       Serial.println(currentTrack);
       mp3.playFolderTrack(myFolder->folder, currentTrack);
       // Fortschritt im EEPROM abspeichern
-      EEPROM_update(myFolder->folder, currentTrack);
+      EEPROM.update(myFolder->folder, currentTrack);
     } else {
       // Fortschritt zurück setzen
-      EEPROM_update(myFolder->folder, 1);
+      EEPROM.update(myFolder->folder, 1);
       setstandbyTimer();
     }
   }
@@ -584,13 +584,13 @@ static void nextTrack(uint16_t track) {
 }
 
 static void previousTrack() {
-  Serial.println(F("=== previousTrack()"));
+  Serial.println("=== previousTrack()");
   /*  if (myCard.mode == 1 || myCard.mode == 7) {
-      Serial.println(F("Hörspielmodus ist aktiv -> Track von vorne spielen"));
+      Serial.println("Hörspielmodus ist aktiv -> Track von vorne spielen"));
       mp3.playFolderTrack(myCard.folder, currentTrack);
     }*/
   if (myFolder->mode == 2 || myFolder->mode == 8) {
-    Serial.println(F("Albummodus ist aktiv -> vorheriger Track"));
+    Serial.println("Albummodus ist aktiv -> vorheriger Track");
     if (currentTrack != firstTrack) {
       currentTrack = currentTrack - 1;
     }
@@ -598,30 +598,30 @@ static void previousTrack() {
   }
   if (myFolder->mode == 3 || myFolder->mode == 9) {
     if (currentTrack != 1) {
-      Serial.print(F("Party Modus ist aktiv -> zurück in der Qeueue "));
+      Serial.print("Party Modus ist aktiv -> zurück in der Qeueue ");
       currentTrack--;
     }
     else
     {
-      Serial.print(F("Anfang der Queue -> springe ans Ende "));
+      Serial.print("Anfang der Queue -> springe ans Ende ");
       currentTrack = numTracksInFolder;
     }
     Serial.println(queue[currentTrack - 1]);
     mp3.playFolderTrack(myFolder->folder, queue[currentTrack - 1]);
   }
   if (myFolder->mode == 4) {
-    Serial.println(F("Einzel Modus aktiv -> Track von vorne spielen"));
+    Serial.println("Einzel Modus aktiv -> Track von vorne spielen");
     mp3.playFolderTrack(myFolder->folder, currentTrack);
   }
   if (myFolder->mode == 5) {
-    Serial.println(F("Hörbuch Modus ist aktiv -> vorheriger Track und "
-                     "Fortschritt speichern"));
+    Serial.println("Hörbuch Modus ist aktiv -> vorheriger Track und "
+                     "Fortschritt speichern");
     if (currentTrack != 1) {
       currentTrack = currentTrack - 1;
     }
     mp3.playFolderTrack(myFolder->folder, currentTrack);
     // Fortschritt im EEPROM abspeichern
-    EEPROM_update(myFolder->folder, currentTrack);
+    EEPROM.update(myFolder->folder, currentTrack);
   }
   delay(1000);
 }
@@ -669,7 +669,7 @@ bool ignoreButtonFive = false;
 /// Funktionen für den Standby Timer (z.B. über Pololu-Switch oder Mosfet)
 
 void setstandbyTimer() {
-  Serial.println(F("=== setstandbyTimer()"));
+  Serial.println("=== setstandbyTimer()");
   if (mySettings.standbyTimer != 0)
     sleepAtMillis = millis() + (mySettings.standbyTimer * 60 * 1000);
   else
@@ -678,13 +678,13 @@ void setstandbyTimer() {
 }
 
 void disablestandbyTimer() {
-  Serial.println(F("=== disablestandby()"));
+  Serial.println("=== disablestandby()");
   sleepAtMillis = 0;
 }
 
 void checkStandbyAtMillis() {
   if (sleepAtMillis != 0 && millis() > sleepAtMillis) {
-    Serial.println(F("=== power off!"));
+    Serial.println("=== power off!");
     // enter sleep state
     digitalWrite(shutdownPin, LOW);
   }
@@ -732,13 +732,13 @@ void setup() {
   randomSeed(ADCSeed); // Zufallsgenerator initialisieren
 
   // Dieser Hinweis darf nicht entfernt werden
-  Serial.println(F("\n _____         _____ _____ _____ _____"));
-  Serial.println(F("|_   _|___ ___|  |  |     |   | |     |"));
-  Serial.println(F("  | | | . |   |  |  |-   -| | | |  |  |"));
-  Serial.println(F("  |_| |___|_|_|_____|_____|_|___|_____| All-in-One\n"));
-  Serial.println(F("TonUINO Version 2.2"));
-  Serial.println(F("created by Thorsten Voß and licensed under GNU/GPL."));
-  Serial.println(F("Information and contribution at https://tonuino.de.\n"));
+  Serial.println("\n _____         _____ _____ _____ _____");
+  Serial.println("|_   _|___ ___|  |  |     |   | |     |");
+  Serial.println("  | | | . |   |  |  |-   -| | | |  |  |");
+  Serial.println("  |_| |___|_|_|_____|_____|_|___|_____| All-in-One Plus\n");
+  Serial.println("TonUINO Version 2.2");
+  Serial.println("created by Thorsten Voß and licensed under GNU/GPL.");
+  Serial.println("Information and contribution at https://tonuino.de.\n");
 
   // Busy Pin
   pinMode(busyPin, INPUT);
@@ -778,9 +778,9 @@ void setup() {
   // RESET --- ALLE DREI KNÖPFE BEIM STARTEN GEDRÜCKT HALTEN -> alle EINSTELLUNGEN werden gelöscht
   if (digitalRead(buttonPause) == LOW && digitalRead(buttonUp) == LOW &&
       digitalRead(buttonDown) == LOW) {
-    Serial.println(F("Reset -> EEPROM wird gelöscht"));
-    for (int i = 0; i < 1024; i++) {
-      EEPROM_update(i, 0);
+    Serial.println("Reset -> EEPROM wird gelöscht");
+    for (int i = 0; i < 256; i++) {
+      EEPROM.update(i, 0);
     }
     loadSettingsFromFlash();
   }
@@ -805,7 +805,7 @@ void volumeUpButton() {
     if (activeModifier->handleVolumeUp() == true)
       return;
 
-  Serial.println(F("=== volumeUp()"));
+  Serial.println("=== volumeUp()");
   if (volume < mySettings.maxVolume) {
     mp3.increaseVolume();
     volume++;
@@ -818,7 +818,7 @@ void volumeDownButton() {
     if (activeModifier->handleVolumeDown() == true)
       return;
 
-  Serial.println(F("=== volumeDown()"));
+  Serial.println("=== volumeDown()");
   if (volume > mySettings.minVolume) {
     mp3.decreaseVolume();
     volume--;
@@ -845,26 +845,26 @@ void previousButton() {
 }
 
 void playFolder() {
-  Serial.println(F("== playFolder()")) ;
+  Serial.println("== playFolder()") ;
   disablestandbyTimer();
   knownCard = true;
   _lastTrackFinished = 0;
   numTracksInFolder = mp3.getFolderTrackCount(myFolder->folder);
   firstTrack = 1;
   Serial.print(numTracksInFolder);
-  Serial.print(F(" Dateien in Ordner "));
+  Serial.print(" Dateien in Ordner ");
   Serial.println(myFolder->folder);
 
   // Hörspielmodus: eine zufällige Datei aus dem Ordner
   if (myFolder->mode == 1) {
-    Serial.println(F("Hörspielmodus -> zufälligen Track wiedergeben"));
+    Serial.println("Hörspielmodus -> zufälligen Track wiedergeben");
     currentTrack = random(1, numTracksInFolder + 1);
     Serial.println(currentTrack);
     mp3.playFolderTrack(myFolder->folder, currentTrack);
   }
   // Album Modus: kompletten Ordner spielen
   if (myFolder->mode == 2) {
-    Serial.println(F("Album Modus -> kompletten Ordner wiedergeben"));
+    Serial.println("Album Modus -> kompletten Ordner wiedergeben");
     currentTrack = 1;
     mp3.playFolderTrack(myFolder->folder, currentTrack);
   }
@@ -885,8 +885,8 @@ void playFolder() {
   }
   // Hörbuch Modus: kompletten Ordner spielen und Fortschritt merken
   if (myFolder->mode == 5) {
-    Serial.println(F("Hörbuch Modus -> kompletten Ordner spielen und "
-                     "Fortschritt merken"));
+    Serial.println("Hörbuch Modus -> kompletten Ordner spielen und "
+                     "Fortschritt merken");
     currentTrack = EEPROM.read(myFolder->folder);
     if (currentTrack == 0 || currentTrack > numTracksInFolder) {
       currentTrack = 1;
@@ -895,9 +895,9 @@ void playFolder() {
   }
   // Spezialmodus Von-Bin: Hörspiel: eine zufällige Datei aus dem Ordner
   if (myFolder->mode == 7) {
-    Serial.println(F("Spezialmodus Von-Bin: Hörspiel -> zufälligen Track wiedergeben"));
+    Serial.println("Spezialmodus Von-Bin: Hörspiel -> zufälligen Track wiedergeben");
     Serial.print(myFolder->special);
-    Serial.print(F(" bis "));
+    Serial.print(" bis ");
     Serial.println(myFolder->special2);
     numTracksInFolder = myFolder->special2;
     currentTrack = random(myFolder->special, numTracksInFolder + 1);
@@ -907,9 +907,9 @@ void playFolder() {
 
   // Spezialmodus Von-Bis: Album: alle Dateien zwischen Start und Ende spielen
   if (myFolder->mode == 8) {
-    Serial.println(F("Spezialmodus Von-Bis: Album: alle Dateien zwischen Start- und Enddatei spielen"));
+    Serial.println("Spezialmodus Von-Bis: Album: alle Dateien zwischen Start- und Enddatei spielen");
     Serial.print(myFolder->special);
-    Serial.print(F(" bis "));
+    Serial.print(" bis ");
     Serial.println(myFolder->special2);
     numTracksInFolder = myFolder->special2;
     currentTrack = myFolder->special;
@@ -929,7 +929,7 @@ void playFolder() {
 }
 
 void playShortCut(uint8_t shortCut) {
-  Serial.println(F("=== playShortCut()"));
+  Serial.println("=== playShortCut()");
   Serial.println(shortCut);
   if (mySettings.shortCuts[shortCut].folder != 0) {
     myFolder = &mySettings.shortCuts[shortCut];
@@ -938,7 +938,7 @@ void playShortCut(uint8_t shortCut) {
     delay(1000);
   }
   else
-    Serial.println(F("Shortcut not configured!"));
+    Serial.println("Shortcut not configured!");
 }
 
 void loop() {
@@ -1113,7 +1113,7 @@ void loop() {
 void adminMenu(bool fromCard = false) {
   disablestandbyTimer();
   mp3.pause();
-  Serial.println(F("=== adminMenu()"));
+  Serial.println("=== adminMenu()");
   knownCard = false;
   if (fromCard == false) {
     // Admin menu has been locked - it still can be trigged via admin card
@@ -1210,7 +1210,7 @@ void adminMenu(bool fromCard = false) {
       do {
         readButtons();
         if (upButton.wasReleased() || downButton.wasReleased()) {
-          Serial.println(F("Abgebrochen!"));
+          Serial.println("Abgebrochen!");
           mp3.playMp3FolderTrack(802);
           return;
         }
@@ -1218,7 +1218,7 @@ void adminMenu(bool fromCard = false) {
 
       // RFID Karte wurde aufgelegt
       if (mfrc522.PICC_ReadCardSerial()) {
-        Serial.println(F("schreibe Karte..."));
+        Serial.println("schreibe Karte...");
         writeCard(tempCard);
         delay(100);
         mfrc522.PICC_HaltA();
@@ -1260,11 +1260,11 @@ void adminMenu(bool fromCard = false) {
       mp3.playMp3FolderTrack(x);
       tempCard.nfcFolderSettings.special = x;
       Serial.print(x);
-      Serial.println(F(" Karte auflegen"));
+      Serial.println(" Karte auflegen");
       do {
         readButtons();
         if (upButton.wasReleased() || downButton.wasReleased()) {
-          Serial.println(F("Abgebrochen!"));
+          Serial.println("Abgebrochen!");
           mp3.playMp3FolderTrack(802);
           return;
         }
@@ -1272,7 +1272,7 @@ void adminMenu(bool fromCard = false) {
 
       // RFID Karte wurde aufgelegt
       if (mfrc522.PICC_ReadCardSerial()) {
-        Serial.println(F("schreibe Karte..."));
+        Serial.println("schreibe Karte...");
         writeCard(tempCard);
         delay(100);
         mfrc522.PICC_HaltA();
@@ -1292,9 +1292,9 @@ void adminMenu(bool fromCard = false) {
     }
   }
   else if (subMenu == 11) {
-    Serial.println(F("Reset -> EEPROM wird gelöscht"));
-    for (int i = 0; i < 1024; i++) {
-      EEPROM_update(i, 0);
+    Serial.println("Reset -> EEPROM wird gelöscht");
+    for (int i = 0; i < 256; i++) {
+      EEPROM.update(i, 0);
     }
     resetSettings();
     mp3.playMp3FolderTrack(999);
@@ -1346,9 +1346,9 @@ uint8_t voiceMenu(int numberOfOptions, int startMessage, int messageOffset,
   uint8_t returnValue = defaultValue;
   if (startMessage != 0)
     mp3.playMp3FolderTrack(startMessage);
-  Serial.print(F("=== voiceMenu() ("));
+  Serial.print("=== voiceMenu() (");
   Serial.print(numberOfOptions);
-  Serial.println(F(" Options)"));
+  Serial.println(" Options)");
   do {
     if (Serial.available() > 0) {
       int optionSerial = Serial.parseInt();
@@ -1365,9 +1365,9 @@ uint8_t voiceMenu(int numberOfOptions, int startMessage, int messageOffset,
     }
     if (pauseButton.wasReleased()) {
       if (returnValue != 0) {
-        Serial.print(F("=== "));
+        Serial.print("=== ");
         Serial.print(returnValue);
-        Serial.println(F(" ==="));
+        Serial.println(" ===");
         return returnValue;
       }
       delay(1000);
@@ -1450,7 +1450,7 @@ void resetCard() {
     downButton.read();
 
     if (upButton.wasReleased() || downButton.wasReleased()) {
-      Serial.print(F("Abgebrochen!"));
+      Serial.print("Abgebrochen!");
       mp3.playMp3FolderTrack(802);
       return;
     }
@@ -1459,7 +1459,7 @@ void resetCard() {
   if (!mfrc522.PICC_ReadCardSerial())
     return;
 
-  Serial.print(F("Karte wird neu konfiguriert!"));
+  Serial.print("Karte wird neu konfiguriert!");
   setupCard();
 }
 
@@ -1497,7 +1497,7 @@ bool setupFolder(folderSettings * theFolder) {
 
 void setupCard() {
   mp3.pause();
-  Serial.println(F("=== setupCard()"));
+  Serial.println("=== setupCard()");
   nfcTagObject newCard;
   if (setupFolder(&newCard.nfcFolderSettings) == true)
   {
@@ -1512,10 +1512,10 @@ void setupCard() {
 bool readCard(nfcTagObject * nfcTag) {
   nfcTagObject tempCard;
   // Show some details of the PICC (that is: the tag/card)
-  Serial.print(F("Card UID:"));
+  Serial.print("Card UID:");
   dump_byte_array(mfrc522.uid.uidByte, mfrc522.uid.size);
   Serial.println();
-  Serial.print(F("PICC type: "));
+  Serial.print("PICC type: ");
   MFRC522::PICC_Type piccType = mfrc522.PICC_GetType(mfrc522.uid.sak);
   Serial.println(mfrc522.PICC_GetTypeName(piccType));
 
@@ -1527,7 +1527,7 @@ bool readCard(nfcTagObject * nfcTag) {
       (piccType == MFRC522::PICC_TYPE_MIFARE_1K ) ||
       (piccType == MFRC522::PICC_TYPE_MIFARE_4K ) )
   {
-    Serial.println(F("Authenticating Classic using key A..."));
+    Serial.println("Authenticating Classic using key A...");
     status = mfrc522.PCD_Authenticate(
                MFRC522::PICC_CMD_MF_AUTH_KEY_A, trailerBlock, &key, &(mfrc522.uid));
   }
@@ -1536,18 +1536,18 @@ bool readCard(nfcTagObject * nfcTag) {
     byte pACK[] = {0, 0}; //16 bit PassWord ACK returned by the tempCard
 
     // Authenticate using key A
-    Serial.println(F("Authenticating MIFARE UL..."));
+    Serial.println("Authenticating MIFARE UL...");
     status = mfrc522.PCD_NTAG216_AUTH(key.keyByte, pACK);
   }
 
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("PCD_Authenticate() failed: "));
+    Serial.print("PCD_Authenticate() failed: ");
     Serial.println(mfrc522.GetStatusCodeName(status));
     return false;
   }
 
   // Show the whole sector as it currently is
-  // Serial.println(F("Current data in sector:"));
+  // Serial.println("Current data in sector:"));
   // mfrc522.PICC_DumpMifareClassicSectorToSerial(&(mfrc522.uid), &key, sector);
   // Serial.println();
 
@@ -1556,12 +1556,12 @@ bool readCard(nfcTagObject * nfcTag) {
       (piccType == MFRC522::PICC_TYPE_MIFARE_1K ) ||
       (piccType == MFRC522::PICC_TYPE_MIFARE_4K ) )
   {
-    Serial.print(F("Reading data from block "));
+    Serial.print("Reading data from block ");
     Serial.print(blockAddr);
-    Serial.println(F(" ..."));
+    Serial.println(" ...");
     status = (MFRC522::StatusCode)mfrc522.MIFARE_Read(blockAddr, buffer, &size);
     if (status != MFRC522::STATUS_OK) {
-      Serial.print(F("MIFARE_Read() failed: "));
+      Serial.print("MIFARE_Read() failed: ");
       Serial.println(mfrc522.GetStatusCodeName(status));
       return false;
     }
@@ -1573,7 +1573,7 @@ bool readCard(nfcTagObject * nfcTag) {
 
     status = (MFRC522::StatusCode)mfrc522.MIFARE_Read(8, buffer2, &size2);
     if (status != MFRC522::STATUS_OK) {
-      Serial.print(F("MIFARE_Read_1() failed: "));
+      Serial.print("MIFARE_Read_1() failed: ");
       Serial.println(mfrc522.GetStatusCodeName(status));
       return false;
     }
@@ -1581,7 +1581,7 @@ bool readCard(nfcTagObject * nfcTag) {
 
     status = (MFRC522::StatusCode)mfrc522.MIFARE_Read(9, buffer2, &size2);
     if (status != MFRC522::STATUS_OK) {
-      Serial.print(F("MIFARE_Read_2() failed: "));
+      Serial.print("MIFARE_Read_2() failed: ");
       Serial.println(mfrc522.GetStatusCodeName(status));
       return false;
     }
@@ -1589,7 +1589,7 @@ bool readCard(nfcTagObject * nfcTag) {
 
     status = (MFRC522::StatusCode)mfrc522.MIFARE_Read(10, buffer2, &size2);
     if (status != MFRC522::STATUS_OK) {
-      Serial.print(F("MIFARE_Read_3() failed: "));
+      Serial.print("MIFARE_Read_3() failed: ");
       Serial.println(mfrc522.GetStatusCodeName(status));
       return false;
     }
@@ -1597,15 +1597,15 @@ bool readCard(nfcTagObject * nfcTag) {
 
     status = (MFRC522::StatusCode)mfrc522.MIFARE_Read(11, buffer2, &size2);
     if (status != MFRC522::STATUS_OK) {
-      Serial.print(F("MIFARE_Read_4() failed: "));
+      Serial.print("MIFARE_Read_4() failed: ");
       Serial.println(mfrc522.GetStatusCodeName(status));
       return false;
     }
     memcpy(buffer + 12, buffer2, 4);
   }
 
-  Serial.print(F("Data on Card "));
-  Serial.println(F(":"));
+  Serial.print("Data on Card ");
+  Serial.println(":");
   dump_byte_array(buffer, 16);
   Serial.println();
   Serial.println();
@@ -1635,7 +1635,7 @@ bool readCard(nfcTagObject * nfcTag) {
       if (activeModifier != NULL) {
         if (activeModifier->getActive() == tempCard.nfcFolderSettings.mode) {
           activeModifier = NULL;
-          Serial.println(F("modifier removed"));
+          Serial.println("modifier removed");
           if (isPlaying()) {
             mp3.playAdvertisement(261);
           }
@@ -1714,7 +1714,7 @@ void writeCard(nfcTagObject nfcTag) {
       (mifareType == MFRC522::PICC_TYPE_MIFARE_1K ) ||
       (mifareType == MFRC522::PICC_TYPE_MIFARE_4K ) )
   {
-    Serial.println(F("Authenticating again using key A..."));
+    Serial.println("Authenticating again using key A...");
     status = mfrc522.PCD_Authenticate(
                MFRC522::PICC_CMD_MF_AUTH_KEY_A, trailerBlock, &key, &(mfrc522.uid));
   }
@@ -1723,21 +1723,21 @@ void writeCard(nfcTagObject nfcTag) {
     byte pACK[] = {0, 0}; //16 bit PassWord ACK returned by the NFCtag
 
     // Authenticate using key A
-    Serial.println(F("Authenticating UL..."));
+    Serial.println("Authenticating UL...");
     status = mfrc522.PCD_NTAG216_AUTH(key.keyByte, pACK);
   }
 
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("PCD_Authenticate() failed: "));
+    Serial.print("PCD_Authenticate() failed: ");
     Serial.println(mfrc522.GetStatusCodeName(status));
     mp3.playMp3FolderTrack(401);
     return;
   }
 
   // Write data to the block
-  Serial.print(F("Writing data into block "));
+  Serial.print("Writing data into block ");
   Serial.print(blockAddr);
-  Serial.println(F(" ..."));
+  Serial.println(" ...");
   dump_byte_array(buffer, 16);
   Serial.println();
 
@@ -1770,7 +1770,7 @@ void writeCard(nfcTagObject nfcTag) {
   }
 
   if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("MIFARE_Write() failed: "));
+    Serial.print("MIFARE_Write() failed: ");
     Serial.println(mfrc522.GetStatusCodeName(status));
     mp3.playMp3FolderTrack(401);
   }
@@ -1800,29 +1800,4 @@ bool checkTwo ( uint8_t a[], uint8_t b[] ) {
     }
   }
   return true;
-}
-
-// emulates EEPROM.put() .get() and .update() on LGT8F328P platform
-// partially sourced from: https://playground.arduino.cc/Code/EEPROMWriteAnything/
-template <class T> int EEPROM_put(int ee, const T& value)
-{
-  const byte* p = (const byte*)(const void*)&value;
-  unsigned int i;
-
-  for (i = 0; i < sizeof(value); i++) EEPROM.write(ee++, *p++);
-  return i;
-}
-
-template <class T> int EEPROM_get(int ee, T& value)
-{
-  byte* p = (byte*)(void*)&value;
-  unsigned int i;
-
-  for (i = 0; i < sizeof(value); i++) *p++ = EEPROM.read(ee++);
-  return i;
-}
-
-template <class T> void EEPROM_update(int ee, const T& value)
-{
-  EEPROM.read(ee) != value ? EEPROM.write(ee, value) : delay(0);
 }
