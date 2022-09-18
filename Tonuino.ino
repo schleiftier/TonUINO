@@ -3,7 +3,6 @@
 #include <JC_Button.h>
 #include <MFRC522.h>
 #include <SPI.h>
-#include <SoftwareSerial.h>
 
 /*
    _____         _____ _____ _____ _____
@@ -81,7 +80,7 @@ bool knownCard = false;
 class Mp3Notify; 
 
 typedef DFMiniMp3<HardwareSerial, Mp3Notify> DfMp3;
-DfMp3 mp3(Serial2);
+DfMp3 mp3(Serial3);
 
 // implement a notification class,
 // its member methods will get called
