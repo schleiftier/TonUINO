@@ -640,7 +640,7 @@ MFRC522::StatusCode status;
 #define buttonPause A0
 #define buttonUp A2
 #define buttonDown A1
-#define busyPin 4
+#define busyPin 13
 #define shutdownPin 27
 #define openAnalogPin A7
 
